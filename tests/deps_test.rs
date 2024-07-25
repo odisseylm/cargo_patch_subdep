@@ -36,12 +36,11 @@ fn gather_patching_dependencies_test_if_ok() -> Result<(), anyhow::Error> {
 }
 
 #[test]
-#[should_panic(expected = "Different versions of [progenitor-client] are found [0.7.1] and [0.7.0]")]
+#[should_panic(expected = "Different versions of [progenitor-client] are found [0.6.0] and [0.7.0]")]
 fn gather_patching_dependencies_test_if_dif_versions() {
     let conf = test_override_config();
     gather_patching_deps_from_dir(
-        // Path::new("/home/volodymyr/projects/rust/rust-study-project-01"),
-        Path::new("/home/volodymyr/projects/rust/mvv_cargo_override_subdep/test_resources/project_err_with_dif_dep_versions"),
+        Path::new("./test_resources/project_err_with_dif_dep_versions"),
         &conf,
     ).unwrap();
 }

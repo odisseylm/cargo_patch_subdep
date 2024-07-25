@@ -1,4 +1,3 @@
-
 [workspace]
 members = [
     "account_web",
@@ -31,9 +30,8 @@ resolver = "2"
 #path = "./../thirdparty/progenitor/progenitor-client"
 
 
-
 [workspace.dependencies]
-reqwest = "0.12.1"
+reqwest = "0.12.1"   # for test only
 
 
 [workspace.metadata.patch-override-sub-dependencies.progenitor-client]

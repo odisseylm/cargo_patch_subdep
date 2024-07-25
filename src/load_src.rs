@@ -11,8 +11,6 @@ use crate::{
 
 
 
-// fn copy_package(dir: &Path, pkg: &Package) -> Result<PathBuf, anyhow::Error> {
-
 pub fn copy_package(dir: &Path, pkg_name: &str, pkg_root: &Path) -> Result<PathBuf, anyhow::Error> {
     let options = CopyOptions::new();
     let to = dir.join("target/patch-override-sub-dep").join(pkg_name);
@@ -41,21 +39,6 @@ fn create_temp_project_with_deps(project_dir: &Path, deps: &HashMap<String, Stri
     let temp_src_dir = temp_prj_dir.join("src");
 
     fs::create_dir_all(&temp_prj_dir) ?;
-
-    /*
-    let mut m = cargo_toml::Manifest::from_str(
-        "\
-            [package]\n\
-            edition = \"2021\"\n\
-            name = \"mvv-temp-for-loading-sources\"\n\
-            version = \"0.0.1\"\n\
-            \n\
-            [lib]\n\
-            \n\
-            [dependencies]\n
-            "
-    ) ?;
-    */
 
     fs::write(&temp_w_manifest_file,
               "[workspace]\nmembers = [ \"tmp_01\" ]\n"
@@ -97,9 +80,6 @@ pub fn load_dep_sources(project_dir: &Path, deps: &HashMap<String, String>)
     let workspace_state = resolve_cargo_core_sub_packages(&temp_manifest_path) ?;
     let pkg_set = &workspace_state.packages;
     */
-
-    // let workspace = fetch_cargo_core_workspace_from_manifest_path(&temp_manifest_path) ?;
-    // let (pkg_set, _resolve) = cargo::ops::resolve_ws(&workspace) ?;
 
     let mut copied = HashMap::<String, PathBuf>::new();
 

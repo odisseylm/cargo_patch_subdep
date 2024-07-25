@@ -1,4 +1,5 @@
 use std::path::Path;
+use if_chain::if_chain;
 use toml::Value;
 use crate::manifest::gather_manifest_files;
 use crate::io::load_cargo_manifest;
@@ -79,54 +80,51 @@ pub fn gather_override_patch_conf_from_dir(project_dir: &Path) -> Result<Overrid
 pub fn parse_conf_metadata(metadata: Option<Value>) -> Result<OverrideSubDepConfig, anyhow::Error>{
     let mut conf_entries = Vec::<OverrideEntry>::new();
 
-    if let Some(ref metadata) = metadata {
-        match metadata {
-            Value::Table(ref table) => {
-                let patch_override_sub_dependencies = table.get("patch-override-sub-dependencies");
-                if let Some(ref patch_override_sub_dependencies) = patch_override_sub_dependencies {
-                    match patch_override_sub_dependencies {
-                        Value::Table(ref patch_override_sub_dependencies) => {
+    if_chain! {
+        if let Some(Value::Table(ref table)) = metadata;
+        let patch_override_sub_dependencies = table.get("patch-override-sub-dependencies");
+        if let Some(Value::Table(ref patch_override_sub_dependencies)) = patch_override_sub_dependencies;
 
-                            for dep_name in patch_override_sub_dependencies {
-                                let override_opt = dep_name.1.get("override");
-                                let dep_name = dep_name.0.as_str();
-                                if let Some(ref override_opt) = override_opt {
-                                    match override_opt {
-                                        Value::Array(ref array) => {
-                                            const MSG: &str = r#"Expected 3*N params (format like: "reqwest", "0.11.27", "0.12.5",)"#;
+        then {
+            for dep_name in patch_override_sub_dependencies {
+                let override_opt = dep_name.1.get("override");
+                let dep_name = dep_name.0.as_str();
+                if let Some(Value::Array(ref array)) = override_opt {
 
-                                            if (array.len() % 3) != 0 {
-                                                return Err(anyhow::anyhow!(MSG));
-                                            }
-
-                                            for i in (0..array.len()).step_by(3) {
-                                                let sub_dep_name = toml_val_str(array.get(i), MSG)?;
-                                                let ver_from = toml_val_str(array.get(i + 1), MSG)?;
-                                                let ver_to = toml_val_str(array.get(i + 2), MSG)?;
-
-                                                let conf_entry = OverrideEntry {
-                                                    dependency: dep_name.to_owned(),
-                                                    sub_dependency: sub_dep_name.to_owned(),
-                                                    version_to_fix: ver_from.to_owned(),
-                                                    version_required: ver_to.to_owned(),
-                                                };
-                                                conf_entries.push(conf_entry);
-                                            }
-                                        }
-                                        _ => {}
-                                    }
-                                }
-                            }
-                        }
-                        _ => {}
-                    }
+                    let override_params = split_override_params(dep_name, array) ?;
+                    conf_entries.extend(override_params);
                 }
             }
-            _ => {}
         }
     }
 
     Ok(OverrideSubDepConfig { entries: conf_entries })
+}
+
+fn split_override_params(dep_name: &str, array: &toml::value::Array) -> anyhow::Result<Vec<OverrideEntry>> {
+    const MSG: &str = r#"Expected 3*N params (format like: "reqwest", "0.11.27", "0.12.5",)"#;
+
+    if (array.len() % 3) != 0 {
+        return Err(anyhow::anyhow!(MSG));
+    }
+
+    let mut conf_entries = Vec::<OverrideEntry>::new();
+
+    for i in (0..array.len()).step_by(3) {
+        let sub_dep_name = toml_val_str(array.get(i), MSG)?;
+        let ver_from = toml_val_str(array.get(i + 1), MSG)?;
+        let ver_to = toml_val_str(array.get(i + 2), MSG)?;
+
+        let conf_entry = OverrideEntry {
+            dependency: dep_name.to_owned(),
+            sub_dependency: sub_dep_name.to_owned(),
+            version_to_fix: ver_from.to_owned(),
+            version_required: ver_to.to_owned(),
+        };
+        conf_entries.push(conf_entry);
+    }
+
+    Ok(conf_entries)
 }
 
 
