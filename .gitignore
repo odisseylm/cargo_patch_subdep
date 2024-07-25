@@ -1,0 +1,9 @@
+/target
+/target/**
+/vendor
+/vendor/**
+/target/**
+/.idea/**
+/.log/**
+/temp/**
+*.log

@@ -1,0 +1,62 @@
+
+[workspace]
+members = [
+    "tuple_heter_iter_macro",
+    "tuple_heter_iter",
+    "proc_macro",
+    "static_error_macro",
+    "auth",
+    "common",
+    "account_soa",
+    "account_web",
+]
+#resolver = "1"
+resolver = "2"
+
+
+# With changed reqwest from version 11 to 12. Otherwise project is not compiled :-(
+[patch.crates-io]
+#progenitor = { version = "0.7.0", path = "./../thirdparty/progenitor/progenitor" }
+#progenitor-client = { version = "0.7.0",  path = "./../thirdparty/progenitor/progenitor-client" }
+#progenitor        = { version = "0.7.0", path = "./target/patch/progenitor-0.7.0" }
+#progenitor-client = { version = "0.7.0",  path = "./target/patch/progenitor-client-0.7.0" }
+#progenitor-impl   = { version = "0.7.0",  path = "./target/patch/progenitor-impl-0.7.0" }
+#progenitor-macro  = { version = "0.7.0",  path = "./target/patch/progenitor-macro-0.7.0" }
+
+#[patch.crates-io.progenitor-client]
+#version = "0.7.0"
+#path = "./../thirdparty/progenitor/progenitor"
+
+[patch.crates-io.progenitor]
+version = "0.7.0"
+path = "./../thirdparty/progenitor/progenitor"
+
+[patch.crates-io.progenitor-client]
+version = "0.7.0"
+path = "./../thirdparty/progenitor/progenitor-client"
+
+
+#[package.metadata.patch.serde]
+#version = "1.0"
+#patches = [
+#    "test.patch"
+#]
+
+
+#[workspace.dependencies.mvv_cargo_override_subdep]
+#path = "/home/volodymyr/projects/rust/mvv_cargo_override_subdep"
+#version = "0.1.0"
+#config = [
+#    "bla-bla","bla-bla",
+#]
+
+#[workspace.package.metadata.patch.serde]
+#version = "1.0"
+#patches = [
+#    "test.patch2"
+#]
+
+[workspace.package.metadata.patch-override-sub-dependencies.progenitor-client]
+override = [
+    "reqwest", "0.11.27", "0.12.5",
+]

@@ -1,0 +1,48 @@
+
+[workspace]
+members = [
+    "account_web",
+    "module_1",
+    "module_2",
+]
+#resolver = "1"
+resolver = "2"
+
+
+# With changed reqwest from version 11 to 12. Otherwise project is not compiled :-(
+[patch.crates-io]
+#progenitor = { version = "0.7.0", path = "./../thirdparty/progenitor/progenitor" }
+#progenitor-client = { version = "0.7.0",  path = "./../thirdparty/progenitor/progenitor-client" }
+#progenitor        = { version = "0.7.0", path = "./target/patch/progenitor-0.7.0" }
+#progenitor-client = { version = "0.7.0",  path = "./target/patch/progenitor-client-0.7.0" }
+#progenitor-impl   = { version = "0.7.0",  path = "./target/patch/progenitor-impl-0.7.0" }
+#progenitor-macro  = { version = "0.7.0",  path = "./target/patch/progenitor-macro-0.7.0" }
+
+#[patch.crates-io.progenitor-client]
+#version = "0.7.0"
+#path = "./../thirdparty/progenitor/progenitor"
+
+#[patch.crates-io.progenitor]
+#version = "0.7.0"
+#path = "./../thirdparty/progenitor/progenitor"
+#
+#[patch.crates-io.progenitor-client]
+#version = "0.7.0"
+#path = "./../thirdparty/progenitor/progenitor-client"
+
+
+
+[workspace.dependencies]
+reqwest = "0.12.1"
+
+
+[workspace.metadata.patch-override-sub-dependencies.progenitor-client]
+override = [
+    "reqwest", "0.11.27", "0.12.5",
+    "url", "2.5.0", "2.5.1",
+]
+[workspace.metadata.patch-override-sub-dependencies.progenitor-client-macro]
+override = [
+    "http", "0.2.6", "0.2.9",
+    "reqwest", "0.11.27", "0.12.5",
+]

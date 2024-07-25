@@ -1,0 +1,20 @@
+
+[workspace]
+members = [
+    "account_soa",
+    "account_web",
+]
+resolver = "2"
+
+
+[workspace.metadata.patch-override-sub-dependencies.progenitor-client]
+override = [
+    "reqwest", "0.11.27", "0.12.5",
+    "url", "2.5.0", "2.5.1",
+]
+[workspace.metadata.patch-override-sub-dependencies.progenitor-client-macro]
+override = [
+    "http", "0.2.6", "0.2.9",
+    "reqwest", "0.11.27", "0.12.5",
+]
+

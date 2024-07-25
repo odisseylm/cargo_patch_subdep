@@ -1,0 +1,7 @@
+
+[workspace]
+members = [
+    # "account_soa",
+    "account_web",
+]
+resolver = "2"

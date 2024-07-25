@@ -1,0 +1,31 @@
+[package]
+name = "mvv_cargo_patch_subdep"
+version = "0.1.0"
+edition = "2021"
+
+
+[lib]
+# proc-macro = true
+
+
+[dependencies]
+#if_chain = "1.0.2"
+
+# It was used as idea.
+#cargo-patch = "0.3.2"
+
+semver = "*" # "1.0.23"
+anyhow = "1.0.86"
+
+cargo_toml = "0.20.4"
+toml = "*" # "0.8.15"
+
+fs_extra = "*" # "1.3.0"
+
+#cargo = "*"
+cargo = "0.80.*"
+url = "*"
+#patch = "0.7"
+
+
+[dev-dependencies]

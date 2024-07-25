@@ -1,0 +1,12 @@
+[package]
+name = "mvv_account_web"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+unknown_dep = "678"
+
+[package.metadata.patch-override-sub-dependencies.progenitor-client]
+override = [
+    "reqwest", "0.11.27", "0.12.5",
+]
