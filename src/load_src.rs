@@ -59,7 +59,7 @@ fn create_temp_project_with_deps(project_dir: &Path, deps: &HashMap<String, Stri
     fs::create_dir_all(&temp_src_dir) ?;
     fs::write(temp_src_dir.join("lib.rs"), "") ?;
 
-    Ok(temp_prj_dir)
+    Ok(temp_w_prj_dir)
 }
 
 pub fn load_dep_sources(project_dir: &Path, deps: &HashMap<String, String>)
@@ -97,5 +97,6 @@ pub fn load_dep_sources(project_dir: &Path, deps: &HashMap<String, String>)
         copied.insert(pkg_name.to_owned(), copied_path);
     }
 
+    clear_dir(&temp_project_dir) ?;
     Ok(copied)
 }
