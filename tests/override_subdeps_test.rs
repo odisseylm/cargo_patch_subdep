@@ -127,21 +127,32 @@ fn load_dep_sources_test() -> Result<(), anyhow::Error> {
     fs::create_dir_all(&src_path) ?;
     fs::write(&src_path.join("lib.rs"), "") ?;
 
+    let progenitor_ver = if cfg!(any(cargo_core_ver_prefix = "05x")) {
+        "0.1.1"
+    } else if cfg!(any(cargo_core_ver_prefix = "06x")) {
+        // "0.7.0", "0.6.0", "0.5.0", "0.4.1", "0.3.0" => deps errors like:
+        //   Error: failed to select a version for the requirement `clap = "^4.2.5"`
+        //   candidate versions found which didn't match: 3.2.25, 3.2.24, 3.2.23, ...
+        "0.2.0" // "0.1.1";
+    } else {
+        "0.7.0"
+    };
+
     load_dep_sources(
         &example_project_path, &string_hash_map([
-            ("progenitor", "0.7.0"),
-            ("progenitor-client", "0.7.0"),
-            ("progenitor-impl", "0.7.0"),
-            ("progenitor-macro", "0.7.0"),
+            ("progenitor", progenitor_ver),
+            ("progenitor-client", progenitor_ver),
+            ("progenitor-impl", progenitor_ver),
+            ("progenitor-macro", progenitor_ver),
         ])) ?;
 
     let base_load_path = Path::new(
         "./target/tmp_test_resources/load_dep_sources_test/project_load_dep_src/target/patch-override-sub-dep");
 
-    assert!(base_load_path.join("progenitor/progenitor-0.7.0").exists());
-    assert!(base_load_path.join("progenitor-client/progenitor-client-0.7.0").exists());
-    assert!(base_load_path.join("progenitor-impl/progenitor-impl-0.7.0").exists());
-    assert!(base_load_path.join("progenitor-macro/progenitor-macro-0.7.0").exists());
+    assert!(base_load_path.join(&format!("progenitor/progenitor-{progenitor_ver}")).exists());
+    assert!(base_load_path.join(&format!("progenitor-client/progenitor-client-{progenitor_ver}")).exists());
+    assert!(base_load_path.join(&format!("progenitor-impl/progenitor-impl-{progenitor_ver}")).exists());
+    assert!(base_load_path.join(&format!("progenitor-macro/progenitor-macro-{progenitor_ver}")).exists());
 
     Ok(())
 }

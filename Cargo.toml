@@ -4,35 +4,35 @@ version = "0.1.0"
 edition = "2021"
 
 
-[lib]
-# proc-macro = true
+[lints.rust]
+# Features are not used there because in general 'features' are considered ass additive
+# and some build tools enables all features at the same time, what is not acceptable for this case.
+unexpected_cfgs = { level = "warn", check-cfg = [
+    'cfg(cargo_core_ver_prefix, values("05x", "06x", "07x", "07next_x", "08x", "09x", "010x", "011x", "012x", "013x", "014x", "015x", "1_0x", "1_1x", "1_2x", "1_3x", "1_4x", "1_5x"))'
+] }
 
-#[[bin]]
-#name = "cargo-patch-subdep-ver"
-#[bin.cargo-patch-subdep-ver]
-#name = "cargo-patch-subdep-ver"
 
+[build-dependencies]
+# cargo-metadata is not compatible with 'cargo' 0.78.*
+cargo_metadata = "0.18.1" # "0.18.1" # TODO: temp, try to avoid it
 
 
 [dependencies]
-if_chain = "1.0.2"
-extension-trait = "1.0.2"
-
 # It was used as idea.
 #cargo-patch = "0.3.2"
 
-semver = "*" # "1.0.23"
-anyhow = "1.0.86"
+# Tested with 0.50.*, 0.59.0, 0.60.*, 0.69.1, 0.70.*, 0.75.1
+cargo = "0.79.0"  # "0.80.*"
+
+# !!! 0.71.*, 0.72.*, 0.73.*, 0.74.*, 0.77.*, 0.78.* - broken => gix-xxx compile error !!!
+# 0.76 0.79 => 07next
 
 cargo_toml = "0.20.4"
 toml = "*" # "0.8.15"
 
+if_chain = "1.0.2"
+extension-trait = "1.0.2"
+
+semver = "*" # "1.0.23"
+anyhow = "*"
 fs_extra = "*" # "1.3.0"
-
-#cargo = "*"
-cargo = "0.80.*"
-url = "*"
-#patch = "0.7"
-
-
-[dev-dependencies]

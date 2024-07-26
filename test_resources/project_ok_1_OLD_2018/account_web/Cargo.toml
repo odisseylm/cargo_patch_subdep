@@ -1,0 +1,20 @@
+[package]
+name = "mvv_account_web"
+version = "0.1.0"
+edition = "2018"
+
+
+[build-dependencies]
+progenitor = "0.1.1"
+reqwest = "0.11.20"
+
+
+[dependencies]
+reqwest = { version = "0.11.22", features = ["default", "json", "stream"] }
+url = "2.5.1"
+
+progenitor = { version = "0.1.1", features = [] }
+progenitor-client = { version = "0.1.1", features = [] }
+
+
+[dev-dependencies]

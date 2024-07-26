@@ -20,3 +20,7 @@ args = ["clean"]
 [tasks.test]
 command = "cargo"
 args = ["test"]
+
+
+[tasks.build-flow]
+dependencies = [ "clean", "build", "test" ]

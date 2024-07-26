@@ -91,6 +91,11 @@ fn replace_dep_version_if_needed(dep: &mut cargo_toml::Dependency, override_entr
 // real high-level action code
 pub fn do_patch_project(project_dir: &Path) -> Result<(), anyhow::Error> {
 
+    let manifest_path = project_dir.join("Cargo.toml");
+    if !manifest_path.exists() {
+        anyhow::bail!("Directory [{project_dir:?}] does not have [Cargo.toml] file.");
+    }
+
     let conf = gather_override_patch_conf_from_dir(project_dir) ?;
     if conf.entries.is_empty() {
         eprintln!("Hm... Nothing to path. Config keys [workspace.metadata.patch-override-sub-dependencies.*] or [package.metadata.patch-override-sub-dependencies.*] are not found");

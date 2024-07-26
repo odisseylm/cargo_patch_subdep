@@ -8,12 +8,6 @@ use crate::io::IOResultErrExt;
 
 pub fn gather_manifest_files(dir: &Path) -> Result<Vec<PathBuf>, anyhow::Error> {
     let mut manifests = Vec::<PathBuf>::with_capacity(10);
-
-    let manifest_path = dir.join("Cargo.toml");
-    if !manifest_path.exists() {
-        anyhow::bail!("Directory [{dir:?}] does not have [Cargo.toml] file.");
-    }
-
     gather_manifest_files_impl(dir, &mut manifests) ?;
     Ok(manifests)
 }

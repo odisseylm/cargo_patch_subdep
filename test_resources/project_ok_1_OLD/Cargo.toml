@@ -1,0 +1,25 @@
+[workspace]
+members = [
+    "account_web",
+    "module_1",
+    "module_2",
+]
+#resolver = "1"
+resolver = "2"
+
+
+# With changed reqwest from version 11 to 12. Otherwise project is not compiled :-(
+[patch.crates-io]
+
+[workspace.dependencies]
+reqwest = "0.11.21"   # for test only
+
+
+[workspace.metadata.patch-override-sub-dependencies.progenitor-client]
+override = [
+    "reqwest", "0.11", "0.11.23",
+]
+[workspace.metadata.patch-override-sub-dependencies.progenitor-client-macro]
+override = [
+    "reqwest", "0.11", "0.11.23",
+]

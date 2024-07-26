@@ -1,0 +1,20 @@
+[package]
+name = "module_2"
+edition = "2018"
+version = "0.0.1"
+
+
+[build-dependencies]
+progenitor = "0.1.1"
+
+
+[dependencies]
+reqwest = { version = "0.11.20", features = ["default", "json", "stream"] }
+
+
+[dependencies.progenitor-client]
+version = "0.1.1"
+features = []
+
+
+[dev-dependencies]

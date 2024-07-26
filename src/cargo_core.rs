@@ -6,19 +6,84 @@ use std::path::Path;
 /// All cargo package related logic is put here to abstract over it changes easy.
 //
 
-type CargoConfig = cargo::util::context::GlobalContext;
 
-pub fn setup_cargo_core_config() -> Result<CargoConfig, anyhow::Error> {
-    let config = cargo::util::context::GlobalContext::default()?;
+#[cfg(any(
+    cargo_core_ver_prefix = "05x",
+    cargo_core_ver_prefix = "06x",
+    cargo_core_ver_prefix = "07x",
+))]
+type CargoCoreConfig = cargo::util::config::Config;
+
+
+#[cfg(any(
+    cargo_core_ver_prefix = "07next_x",
+    cargo_core_ver_prefix = "08x",
+    cargo_core_ver_prefix = "09x",
+    cargo_core_ver_prefix = "010x",
+    cargo_core_ver_prefix = "011x",
+    cargo_core_ver_prefix = "012x",
+    cargo_core_ver_prefix = "013x",
+    cargo_core_ver_prefix = "014x",
+    cargo_core_ver_prefix = "015x",
+    cargo_core_ver_prefix = "1_0x",
+    cargo_core_ver_prefix = "1_1x",
+    cargo_core_ver_prefix = "1_2x",
+    cargo_core_ver_prefix = "1_3x",
+    cargo_core_ver_prefix = "1_4x",
+    cargo_core_ver_prefix = "1_5x",
+))]
+type CargoCoreConfig = cargo::util::context::GlobalContext;
+
+
+
+#[cfg(any(
+    cargo_core_ver_prefix = "07next_x",
+    cargo_core_ver_prefix = "08x",
+    cargo_core_ver_prefix = "09x",
+    cargo_core_ver_prefix = "010x",
+    cargo_core_ver_prefix = "011x",
+    cargo_core_ver_prefix = "012x",
+    cargo_core_ver_prefix = "013x",
+    cargo_core_ver_prefix = "014x",
+    cargo_core_ver_prefix = "015x",
+    cargo_core_ver_prefix = "1_0x",
+    cargo_core_ver_prefix = "1_1x",
+    cargo_core_ver_prefix = "1_2x",
+    cargo_core_ver_prefix = "1_3x",
+    cargo_core_ver_prefix = "1_4x",
+    cargo_core_ver_prefix = "1_5x",
+))]
+pub fn acquire_cargo_core_package_cache_lock(config: &CargoCoreConfig)
+    -> anyhow::Result<cargo::util::cache_lock::CacheLock> {
+    let lock = config.acquire_package_cache_lock(cargo::util::cache_lock::CacheLockMode::Shared) ?;
+    Ok(lock)
+}
+
+
+#[cfg(any(
+    cargo_core_ver_prefix = "05x",
+    cargo_core_ver_prefix = "06x",
+    cargo_core_ver_prefix = "07x",
+))]
+pub fn acquire_cargo_core_package_cache_lock(config: &CargoCoreConfig)
+    -> anyhow::Result<cargo::util::config::PackageCacheLock> {
+    let lock = config.acquire_package_cache_lock() ?;
+    Ok(lock)
+}
+
+
+pub fn setup_cargo_core_config() -> Result<CargoCoreConfig, anyhow::Error> {
+    let config = CargoCoreConfig::default()?;
     config.shell().set_verbosity(cargo::core::Verbosity::Quiet);
     Ok(config)
 }
 
 
-pub fn fetch_cargo_core_workspace<'a>(config: &'a CargoConfig, path: &Path)
-    -> Result<cargo::core::Workspace<'a>, anyhow::Error> {
+pub fn fetch_cargo_core_workspace<'a>(config: &'a CargoCoreConfig, path: &Path)
+                                      -> Result<cargo::core::Workspace<'a>, anyhow::Error> {
     cargo::core::Workspace::new(path, config)
 }
+
 
 /*
 pub struct CargoCoreWorkspace<'a> {

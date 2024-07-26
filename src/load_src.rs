@@ -5,7 +5,7 @@ use anyhow::anyhow;
 use fs_extra::dir::{ copy, CopyOptions };
 use crate::{
     io::{ save_manifest, clear_dir },
-    cargo_core::{ fetch_cargo_core_workspace, setup_cargo_core_config },
+    cargo_core::{ fetch_cargo_core_workspace, setup_cargo_core_config, acquire_cargo_core_package_cache_lock },
 };
 //--------------------------------------------------------------------------------------------------
 
@@ -47,7 +47,16 @@ fn create_temp_project_with_deps(project_dir: &Path, deps: &HashMap<String, Stri
     let mut m = cargo_toml::Manifest::from_str("") ?;
 
     let mut pkg = cargo_toml::Package::new("mvv-temp-for-loading-sources", "0.0.1");
-    pkg.edition = cargo_toml::Inheritable::Set(cargo_toml::Edition::E2021);
+
+    // let edition = if cfg!(any(cargo_core_ver_prefix = "05x")) {
+    //     cargo_toml::Edition::E2018
+    // } else {
+    //     cargo_toml::Edition::E2021
+    // };
+    //
+    // pkg.edition = cargo_toml::Inheritable::Set(edition);
+
+    pkg.edition = cargo_toml::Inheritable::Set(cargo_toml::Edition::E2018);
     m.package = Some(pkg);
 
     for dep in deps {
@@ -72,7 +81,7 @@ pub fn load_dep_sources(project_dir: &Path, deps: &HashMap<String, String>)
     let temp_manifest_path = fs::canonicalize(temp_manifest_path) ?;
 
     let config = setup_cargo_core_config() ?;
-    let _lock = config.acquire_package_cache_lock(cargo::util::cache_lock::CacheLockMode::Shared) ?;
+    let _lock = acquire_cargo_core_package_cache_lock(&config) ?;
     let workspace = fetch_cargo_core_workspace(&config, &temp_manifest_path) ?;
     let (pkg_set, _resolve) = cargo::ops::resolve_ws(&workspace) ?;
 
