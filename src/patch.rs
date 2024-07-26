@@ -93,7 +93,7 @@ pub fn do_patch_project(project_dir: &Path) -> Result<(), anyhow::Error> {
 
     let conf = gather_override_patch_conf_from_dir(project_dir) ?;
     if conf.entries.is_empty() {
-        eprintln!("Hm... Nothing to path. Config keys [*.metadata.patch-override-sub-dependencies.*] are not found");
+        eprintln!("Hm... Nothing to path. Config keys [workspace.metadata.patch-override-sub-dependencies.*] or [package.metadata.patch-override-sub-dependencies.*] are not found");
         return Ok(());
     }
 
@@ -202,7 +202,7 @@ pub fn add_patch_entry_if_no(manifest_path: &Path,
     }
 
     let patch_entry: String = format!("\n\
-                      [patch.crates-io.progenitor-client]\n\
+                      [patch.crates-io.{dep_name}]\n\
                       version = \"{dep_version}\"\n\
                       path = \"{dep_src_relative_path_str}\"\n");
 

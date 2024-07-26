@@ -37,3 +37,13 @@ pub fn copy_dir(from_dir: &Path, to_dir: &Path) -> Result<(), anyhow::Error> {
     copy(from_dir, to_dir, &options) ?;
     Ok(())
 }
+
+
+#[extension_trait::extension_trait]
+pub impl <T> IOResultErrExt for std::io::Result<T> {
+    type T = T;
+    #[track_caller]
+    fn map_io_err(self, path: &Path) -> anyhow::Result<Self::T> {
+        self.map_err(|err|anyhow::anyhow!("Error of processing [{path:?}] ({err})"))
+    }
+}

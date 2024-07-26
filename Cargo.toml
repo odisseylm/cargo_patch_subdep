@@ -7,9 +7,16 @@ edition = "2021"
 [lib]
 # proc-macro = true
 
+#[[bin]]
+#name = "cargo-patch-subdep-ver"
+#[bin.cargo-patch-subdep-ver]
+#name = "cargo-patch-subdep-ver"
+
+
 
 [dependencies]
 if_chain = "1.0.2"
+extension-trait = "1.0.2"
 
 # It was used as idea.
 #cargo-patch = "0.3.2"

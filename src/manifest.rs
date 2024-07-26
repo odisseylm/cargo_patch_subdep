@@ -1,12 +1,19 @@
 use std::ffi::OsString;
 use std::fs;
 use std::path::{Path, PathBuf};
+use crate::io::IOResultErrExt;
 //--------------------------------------------------------------------------------------------------
 
 
 
 pub fn gather_manifest_files(dir: &Path) -> Result<Vec<PathBuf>, anyhow::Error> {
     let mut manifests = Vec::<PathBuf>::with_capacity(10);
+
+    let manifest_path = dir.join("Cargo.toml");
+    if !manifest_path.exists() {
+        anyhow::bail!("Directory [{dir:?}] does not have [Cargo.toml] file.");
+    }
+
     gather_manifest_files_impl(dir, &mut manifests) ?;
     Ok(manifests)
 }
@@ -17,10 +24,10 @@ fn gather_manifest_files_impl(dir: &Path, manifests: &mut Vec<PathBuf>) -> Resul
     let cargo_toml = OsString::from_str("Cargo.toml") ?;
     let cargo_toml_opt = Some(cargo_toml.as_os_str());
 
-    for entry in fs::read_dir(dir)? {
-        let entry = entry ?;
+    for entry in fs::read_dir(dir).map_io_err(dir) ? {
+        let entry = entry.map_io_err(dir) ?;
         let path = entry.path();
-        let metadata = fs::metadata(&path) ?;
+        let metadata = fs::metadata(&path).map_io_err(&path) ?;
 
         if metadata.is_symlink() {
             // skip
