@@ -1,0 +1,75 @@
+# cargo-patch-subdep
+
+`Cargo-Patch-SubDependencies` is a Cargo Subcommand which allows patching sub-dependencies versions.
+It gets them already downloaded from std cargo registry, puts to './target/patch-override-sub-dep'
+and adds patch entry to root manifest Cargo.toml file.
+Downloading dependency sources are done by creating temporary empty project with
+required dependencies section and using 'cargo' crate to resolve it and get 
+path to downloaded dependency sources.
+
+
+## Installation
+
+Simply run:
+
+```sh
+cargo install cargo-patch-subdep
+```
+```sh
+cargo install cargo-patch-subdep --path /home/...bla-bala.../cargo_patch_subdep
+```
+```sh
+cargo install --git https://github.com/odisseylm/cargo_patch_subdep
+```
+
+
+Using only 'build.rs' is not supported now.
+I don't know how to register hook before manifest check/resolve action.
+'build.rs' is called after and if manifest already has patch entries
+but (patched/not-patched) sources are not put yet into './target/patch-override-sub-dep'
+resolve/check fails and 'build.rs' is not called.
+
+
+## Usage
+
+To patch a dependency one has to add the following to `Cargo.toml`:
+
+```toml
+[workspace.metadata.patch-override-sub-dependencies.progenitor]
+override = [ "reqwest", "0.11.27", "0.12.5", ]
+[workspace.metadata.patch-override-sub-dependencies.progenitor-impl]
+override = [ "reqwest", "0.11.27", "0.12.5", ]
+[workspace.metadata.patch-override-sub-dependencies.progenitor-client]
+override = [ "reqwest", "0.11.27", "0.12.5", ]
+```
+
+It specifies which dependency to patch (in this case 'progenitor-xxx').
+Running:
+
+```sh
+cargo patch-subdep
+```
+
+will download the packages specified in the dependency section to the
+'./target/patch-override-sub-dep' folder and change sub-dependency versions.
+And the similar path entries will be added into root 'Cargo.toml'.
+
+```toml
+[patch.crates-io.progenitor]
+version = "0.7.0"
+path = "target/patch-override-sub-dep/progenitor/progenitor-0.7.0"
+
+[patch.crates-io.progenitor-impl]
+version = "0.7.0"
+path = "target/patch-override-sub-dep/progenitor-impl/progenitor-impl-0.7.0"
+
+[patch.crates-io.progenitor-client]
+version = "0.7.0"
+path = "target/patch-override-sub-dep/progenitor-client/progenitor-client-0.7.0"
+```
+
+
+## Limitations
+
+??? It's only possible to patch dependencies of binary crates as it is not possible
+for a subcommand to intercept the build process.

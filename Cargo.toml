@@ -3,6 +3,13 @@ name = "mvv_cargo_patch_subdep"
 version = "0.1.0"
 edition = "2021"
 
+description = "Cargo Subcommand for patching sub-dependencies versions"
+license = "Apache-2.0"
+readme = "README.md"
+keywords = [ "cargo", "patch", "dependency", "dependencies" , "sub-dependency" ]
+categories = ["command-line-utilities"]
+repository = "https://github.com/odisseylm/cargo_patch_subdep"
+
 
 [lints.rust]
 # Features are not used there because in general 'features' are considered ass additive
