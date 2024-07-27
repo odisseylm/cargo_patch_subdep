@@ -11,12 +11,13 @@ use std::path::Path;
     cargo_core_ver_prefix = "05x",
     cargo_core_ver_prefix = "06x",
     cargo_core_ver_prefix = "07x",
+    cargo_core_ver_prefix = "076x",
 ))]
 type CargoCoreConfig = cargo::util::config::Config;
 
 
 #[cfg(any(
-    cargo_core_ver_prefix = "07next_x",
+    cargo_core_ver_prefix = "079x",
     cargo_core_ver_prefix = "08x",
     cargo_core_ver_prefix = "09x",
     cargo_core_ver_prefix = "010x",
@@ -37,7 +38,8 @@ type CargoCoreConfig = cargo::util::context::GlobalContext;
 
 
 #[cfg(any(
-    cargo_core_ver_prefix = "07next_x",
+    cargo_core_ver_prefix = "076x",
+    cargo_core_ver_prefix = "079x",
     cargo_core_ver_prefix = "08x",
     cargo_core_ver_prefix = "09x",
     cargo_core_ver_prefix = "010x",
