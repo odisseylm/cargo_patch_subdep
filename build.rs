@@ -2,11 +2,9 @@
 fn main() {
     let cargo_core_ver = get_cargo_crate_version();
     if let Some(ref cargo_core_ver) = cargo_core_ver {
-        let cargo_core_feature = get_cargo_core_ver_feature(cargo_core_ver);
-        if !cargo_core_feature.is_empty() {
-            let cargo_core_ver_prefix = cargo_core_feature.strip_prefix("cargo_core_")
-                .expect(&format!("Unexpected format of cargo_core_feature [{cargo_core_feature}]."));
-            println!(r#"cargo::rustc-cfg=cargo_core_ver_prefix="{cargo_core_ver_prefix}""#);
+        let cargo_core_ver_id = get_cargo_core_ver_id(cargo_core_ver);
+        if !cargo_core_ver_id.is_empty() {
+            println!(r#"cargo::rustc-cfg=cargo_core_ver_prefix="{cargo_core_ver_id}""#);
         }
     }
 }
@@ -39,43 +37,43 @@ fn get_cargo_crate_version() -> Option<String> {
 }
 
 
-fn get_cargo_core_ver_feature(cargo_core_ver: &str) -> &'static str {
+fn get_cargo_core_ver_id(cargo_core_ver: &str) -> &'static str {
     if cargo_core_ver.starts_with("0.5") {
-        "cargo_core_05x"
+        "05x"
     } else if cargo_core_ver.starts_with("0.6") {
-        "cargo_core_06x"
+        "06x"
     } else if cargo_core_ver.starts_with("0.70") {
-        "cargo_core_07x"
+        "07x"
     } else if cargo_core_ver.starts_with("0.79") {
-        "cargo_core_07next_x"
+        "07next_x"
     // } else if cargo_core_ver.starts_with(0.78 - 0.79) { Deps are not compiled now
-    //     "cargo_core_07next_x"
+    //     "07next_x"
     } else if cargo_core_ver.starts_with("0.8") {
-        "cargo_core_08x"
+        "08x"
     } else if cargo_core_ver.starts_with("0.9") {
-        "cargo_core_09x"
+        "09x"
     } else if cargo_core_ver.starts_with("0.10") {
-        "cargo_core_010x"
+        "010x"
     } else if cargo_core_ver.starts_with("0.11") {
-        "cargo_core_011x"
+        "011x"
     } else if cargo_core_ver.starts_with("0.12") {
-        "cargo_core_012x"
+        "012x"
     } else if cargo_core_ver.starts_with("0.13") {
-        "cargo_core_013x"
+        "013x"
     } else if cargo_core_ver.starts_with("0.14") {
-        "cargo_core_014x"
+        "014x"
     } else if cargo_core_ver.starts_with("1.0") {
-        "cargo_core_1_0x"
+        "1_0x"
     } else if cargo_core_ver.starts_with("1.1") {
-        "cargo_core_1_1x"
+        "1_1x"
     } else if cargo_core_ver.starts_with("1.2") {
-        "cargo_core_1_2x"
+        "1_2x"
     } else if cargo_core_ver.starts_with("1.3") {
-        "cargo_core_1_3x"
+        "1_3x"
     } else if cargo_core_ver.starts_with("1.4") {
-        "cargo_core_1_4x"
+        "1_4x"
     } else if cargo_core_ver.starts_with("1.5") {
-        "cargo_core_1_5x"
+        "1_5x"
     } else {
         ""
     }
