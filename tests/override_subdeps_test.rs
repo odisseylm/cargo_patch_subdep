@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::Path;
 use mvv_cargo_patch_subdep::{
-    conf::{ OverrideSubDepConfig, str_override_entry },
+    conf::{ ReplaceSubDepVersConfig, str_override_entry },
     deps::gather_all_dep_ver_from_dir,
     patch::replace_deps_version_in_file_tree,
     load_src::load_dep_sources,
@@ -14,7 +14,7 @@ use mvv_cargo_patch_subdep::{
 
 #[test]
 fn replace_deps_version_in_file_tree_real_test() -> Result<(), anyhow::Error> {
-    let conf = OverrideSubDepConfig::new([
+    let conf = ReplaceSubDepVersConfig::new([
         str_override_entry(
             "*", // not used on phase of overriding
             "reqwest", "0.11.27", "0.12.5"),
@@ -59,7 +59,7 @@ fn replace_deps_version_in_file_tree_real_test() -> Result<(), anyhow::Error> {
 
 #[test]
 fn replace_deps_version_in_file_tree_synthetic_test() -> Result<(), anyhow::Error> {
-    let conf = OverrideSubDepConfig::new([
+    let conf = ReplaceSubDepVersConfig::new([
         str_override_entry(
             "*", // not used on phase of overriding
             "reqwest", "0.12.1", "0.1012.1"),

@@ -1,7 +1,7 @@
 use std::collections::{ HashMap, HashSet };
 use std::path::Path;
 use crate::{
-    conf::OverrideSubDepConfig,
+    conf::ReplaceSubDepVersConfig,
     manifest::gather_manifest_files,
     io::load_cargo_manifest,
     util::string_hash_set_1,
@@ -17,7 +17,7 @@ pub fn is_implicit_ver(ver: &str) -> bool {
 
 
 
-pub fn gather_patching_deps_from_dir(project_dir: &Path, config: &OverrideSubDepConfig)
+pub fn gather_patching_deps_from_dir(project_dir: &Path, config: &ReplaceSubDepVersConfig)
                                      -> Result<HashMap<String, String>, anyhow::Error> {
 
     let manifests = gather_manifest_files(project_dir) ?;
@@ -32,13 +32,13 @@ pub fn gather_patching_deps_from_dir(project_dir: &Path, config: &OverrideSubDep
 
 fn gather_patching_deps_from_manifest<'a>(
     manifest_path: &Path,
-    config: &OverrideSubDepConfig,
+    config: &ReplaceSubDepVersConfig,
     dependencies_to_fix: &mut HashMap<String, String>,
 )
     -> Result<(), anyhow::Error> {
 
     fn gather_patching_deps_from_deps<'a>(
-        dependencies: &'a cargo_toml::DepsSet, config: &OverrideSubDepConfig)
+        dependencies: &'a cargo_toml::DepsSet, config: &ReplaceSubDepVersConfig)
         -> Result<HashMap<&'a String, &'a cargo_toml::Dependency>, anyhow::Error> {
 
         let deps_with_ver = dependencies.iter()

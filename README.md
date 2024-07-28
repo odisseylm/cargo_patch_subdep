@@ -35,12 +35,12 @@ resolve/check fails and 'build.rs' is not called.
 To patch a dependency one has to add the following to `Cargo.toml`:
 
 ```toml
-[workspace.metadata.patch-override-sub-dependencies.progenitor]
-override = [ "reqwest", "0.11.27", "0.12.5", ]
-[workspace.metadata.patch-override-sub-dependencies.progenitor-impl]
-override = [ "reqwest", "0.11.27", "0.12.5", ]
-[workspace.metadata.patch-override-sub-dependencies.progenitor-client]
-override = [ "reqwest", "0.11.27", "0.12.5", ]
+[workspace.metadata.patch-replace-sub-dependencies.progenitor]
+replace = [ { sub_dep = "reqwest", from_ver = "0.11.27", to_ver = "0.12.5" }, ]
+[workspace.metadata.patch-replace-sub-dependencies.progenitor-impl]
+replace = [ { sub_dep = "reqwest", from_ver = "0.11.27", to_ver = "0.12.5" }, ]
+[workspace.metadata.patch-replace-sub-dependencies.progenitor-client]
+replace = [ { sub_dep = "reqwest", from_ver = "0.11.27", to_ver = "0.12.5" }, ]
 ```
 
 It specifies which dependency to patch (in this case 'progenitor-xxx').

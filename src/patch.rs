@@ -2,7 +2,7 @@ use std::io::Write;
 use std::path::Path;
 use cargo_toml::Dependency;
 use crate::{
-    conf::{ gather_override_patch_conf_from_dir, OverrideEntry, OverrideSubDepConfig },
+    conf::{ gather_override_patch_conf_from_dir, ReplaceSubDepVerEntry, ReplaceSubDepVersConfig },
     deps::gather_patching_deps_from_dir,
     manifest::gather_manifest_files,
     io::{ load_cargo_manifest, save_manifest },
@@ -12,7 +12,7 @@ use crate::{
 
 
 
-pub fn replace_deps_version_in_file_tree(root_dir: &Path, override_config: &OverrideSubDepConfig)
+pub fn replace_deps_version_in_file_tree(root_dir: &Path, override_config: &ReplaceSubDepVersConfig)
     -> Result<(), anyhow::Error> {
 
     let manifests = gather_manifest_files(root_dir) ?;
@@ -22,7 +22,7 @@ pub fn replace_deps_version_in_file_tree(root_dir: &Path, override_config: &Over
     Ok(())
 }
 
-fn replace_deps_version_in_file(manifest_file_path: &Path, override_config: &OverrideSubDepConfig) -> Result<(), anyhow::Error> {
+fn replace_deps_version_in_file(manifest_file_path: &Path, override_config: &ReplaceSubDepVersConfig) -> Result<(), anyhow::Error> {
     let mut manifest = load_cargo_manifest(manifest_file_path) ?;
     let mut fixed = false;
 
@@ -42,7 +42,7 @@ fn replace_deps_version_in_file(manifest_file_path: &Path, override_config: &Ove
 }
 
 
-fn replace_deps_version(deps: &mut cargo_toml::DepsSet, override_config: &OverrideSubDepConfig) -> bool {
+fn replace_deps_version(deps: &mut cargo_toml::DepsSet, override_config: &ReplaceSubDepVersConfig) -> bool {
     let mut fixed = false;
 
     for dep in deps {
@@ -59,16 +59,16 @@ fn replace_deps_version(deps: &mut cargo_toml::DepsSet, override_config: &Overri
     fixed
 }
 
-fn replace_dep_version_if_needed(dep: &mut cargo_toml::Dependency, override_entry: &OverrideEntry) -> bool {
+fn replace_dep_version_if_needed(dep: &mut cargo_toml::Dependency, override_entry: &ReplaceSubDepVerEntry) -> bool {
     use cargo_toml::Dependency;
 
     let version = dep.try_req().unwrap_or("");
-    if version == override_entry.version_to_fix {
+    if version == override_entry.from_ver {
         match dep {
 
             // Version requirement (e. g. ^1.5)
             Dependency::Simple(ref mut dep) => {
-                *dep = override_entry.version_required.clone(); // "0.12.5".to_owned();
+                *dep = override_entry.to_ver.clone(); // "0.12.5".to_owned();
                 true
             }
 
@@ -78,7 +78,7 @@ fn replace_dep_version_if_needed(dep: &mut cargo_toml::Dependency, override_entr
 
             // { version = "^1.5", features = ["a", "b"] } etc.
             Dependency::Detailed(ref mut dep) => {
-                dep.version = Some(override_entry.version_required.clone()); // "0.12.5".to_owned());
+                dep.version = Some(override_entry.to_ver.clone()); // "0.12.5".to_owned());
                 true
             }
         }
@@ -116,7 +116,7 @@ pub fn do_patch_project(project_dir: &Path) -> Result<(), anyhow::Error> {
             .filter(|e| e.dependency == dep_name)
             .map(|e| e.clone())
             .collect::<Vec<_>>();
-        let this_dep_conf = OverrideSubDepConfig { entries: this_dep_patch_rules };
+        let this_dep_conf = ReplaceSubDepVersConfig { entries: this_dep_patch_rules };
 
         replace_deps_version_in_file_tree(&downloaded_dep_src_to_patch, &this_dep_conf) ?;
     }

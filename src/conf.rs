@@ -8,39 +8,40 @@ use crate::io::load_cargo_manifest;
 
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct OverrideSubDepConfig {
+pub struct ReplaceSubDepVersConfig {
     // Since there should not be a lot of entries, we can use list instead of map (with complex key)
-    pub entries: Vec<OverrideEntry>,
+    pub entries: Vec<ReplaceSubDepVerEntry>,
 }
 
-impl OverrideSubDepConfig {
-    pub fn new<const N: usize>(entries: [OverrideEntry; N]) -> Self {
-        OverrideSubDepConfig { entries: entries.into_iter().collect::<Vec<_>>() }
+impl ReplaceSubDepVersConfig {
+    pub fn new<const N: usize>(entries: [ReplaceSubDepVerEntry; N]) -> Self {
+        ReplaceSubDepVersConfig { entries: entries.into_iter().collect::<Vec<_>>() }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Ord, PartialOrd)]
-pub struct OverrideEntry {
+#[derive(serde::Serialize, serde::Deserialize)]
+pub struct ReplaceSubDepVerEntry {
     pub dependency: String,
     pub sub_dependency: String,
-    pub version_to_fix: String,
-    pub version_required: String,
+    pub from_ver: String,
+    pub to_ver: String,
 }
 
 // mainly for test
-pub fn str_override_entry(dep: &str, sub_dep: &str, ver_to_fix: &str, ver_req: &str) -> OverrideEntry {
-    OverrideEntry {
+pub fn str_override_entry(dep: &str, sub_dep: &str, ver_to_fix: &str, ver_req: &str) -> ReplaceSubDepVerEntry {
+    ReplaceSubDepVerEntry {
         dependency: dep.to_owned(),
         sub_dependency: sub_dep.to_owned(),
-        version_to_fix: ver_to_fix.to_owned(),
-        version_required: ver_req.to_owned(),
+        from_ver: ver_to_fix.to_owned(),
+        to_ver: ver_req.to_owned(),
     }
 }
 
-impl OverrideSubDepConfig {
-    pub fn find_override_for_sub_dep(&self, sub_dep_name: &str, version: &str) -> Option<&OverrideEntry> {
+impl ReplaceSubDepVersConfig {
+    pub fn find_override_for_sub_dep(&self, sub_dep_name: &str, version: &str) -> Option<&ReplaceSubDepVerEntry> {
         self.entries.iter()
-            .find(|e| e.sub_dependency == sub_dep_name && e.version_to_fix == version)
+            .find(|e| e.sub_dependency == sub_dep_name && e.from_ver == version)
     }
     pub fn is_dep_to_fix(&self, dep_name: &str) -> bool {
         self.entries.iter()
@@ -50,10 +51,10 @@ impl OverrideSubDepConfig {
 }
 
 
-pub fn gather_override_patch_conf_from_dir(project_dir: &Path) -> Result<OverrideSubDepConfig, anyhow::Error>{
+pub fn gather_override_patch_conf_from_dir(project_dir: &Path) -> Result<ReplaceSubDepVersConfig, anyhow::Error>{
 
     let manifests = gather_manifest_files(project_dir) ?;
-    let mut all_conf_entries = Vec::<OverrideEntry>::new();
+    let mut all_conf_entries = Vec::<ReplaceSubDepVerEntry>::new();
 
     for m_path in manifests {
         let m = load_cargo_manifest(&m_path) ?;
@@ -73,66 +74,70 @@ pub fn gather_override_patch_conf_from_dir(project_dir: &Path) -> Result<Overrid
     all_conf_entries.sort_unstable();
     all_conf_entries.dedup();
 
-    Ok(OverrideSubDepConfig { entries: all_conf_entries })
+    Ok(ReplaceSubDepVersConfig { entries: all_conf_entries })
 }
 
 
-pub fn parse_conf_metadata(metadata: Option<Value>) -> Result<OverrideSubDepConfig, anyhow::Error>{
-    let mut conf_entries = Vec::<OverrideEntry>::new();
+pub fn parse_conf_metadata(metadata: Option<Value>) -> Result<ReplaceSubDepVersConfig, anyhow::Error>{
+    let mut conf_entries = Vec::<ReplaceSubDepVerEntry>::new();
 
     if_chain! {
         if let Some(Value::Table(ref table)) = metadata;
-        let patch_override_sub_dependencies = table.get("patch-override-sub-dependencies");
+        let patch_override_sub_dependencies = table.get("patch-replace-sub-dependencies");
         if let Some(Value::Table(ref patch_override_sub_dependencies)) = patch_override_sub_dependencies;
 
         then {
             for dep_name in patch_override_sub_dependencies {
-                let override_opt = dep_name.1.get("override");
+                let override_opt = dep_name.1.get("replace");
                 let dep_name = dep_name.0.as_str();
                 if let Some(Value::Array(ref array)) = override_opt {
-
-                    let override_params = split_override_params(dep_name, array) ?;
-                    conf_entries.extend(override_params);
+                    let replace_attrs = parse_override_params(dep_name, array) ?;
+                    conf_entries.extend(replace_attrs);
                 }
             }
         }
     }
 
-    Ok(OverrideSubDepConfig { entries: conf_entries })
+    Ok(ReplaceSubDepVersConfig { entries: conf_entries })
 }
 
-fn split_override_params(dep_name: &str, array: &toml::value::Array) -> anyhow::Result<Vec<OverrideEntry>> {
-    const MSG: &str = r#"Expected 3*N params (format like: "reqwest", "0.11.27", "0.12.5",)"#;
 
-    if (array.len() % 3) != 0 {
-        return Err(anyhow::anyhow!(MSG));
-    }
+fn parse_override_params(dep_name: &str, array: &toml::value::Array) -> anyhow::Result<Vec<ReplaceSubDepVerEntry>> {
+    const ERR_MSG: &str = r#"Expected format like: [ sub_dep = "reqwest", from_ver = "0.11.27", to_ver = "0.12.5",)"#;
+    let mut conf_entries = Vec::<ReplaceSubDepVerEntry>::new();
 
-    let mut conf_entries = Vec::<OverrideEntry>::new();
+    for array_item in array.iter() {
+        if let Value::Table(ref table) = array_item {
+            let sub_dependency = table.get("sub_dep").string_value(ERR_MSG) ?;
+            let from_ver  = table.get("from_ver").string_value(ERR_MSG) ?;
+            let to_ver = table.get("to_ver").string_value(ERR_MSG) ?;
 
-    for i in (0..array.len()).step_by(3) {
-        let sub_dep_name = toml_val_str(array.get(i), MSG)?;
-        let ver_from = toml_val_str(array.get(i + 1), MSG)?;
-        let ver_to = toml_val_str(array.get(i + 2), MSG)?;
-
-        let conf_entry = OverrideEntry {
-            dependency: dep_name.to_owned(),
-            sub_dependency: sub_dep_name.to_owned(),
-            version_to_fix: ver_from.to_owned(),
-            version_required: ver_to.to_owned(),
-        };
-        conf_entries.push(conf_entry);
+            conf_entries.push(ReplaceSubDepVerEntry {
+                dependency: dep_name.to_owned(), sub_dependency,
+                from_ver, to_ver,
+            });
+        } else {
+            anyhow::bail!(ERR_MSG);
+        }
     }
 
     Ok(conf_entries)
 }
 
 
-fn toml_val_str(v: Option<&Value>, err_msg: &'static str) -> anyhow::Result<String> {
+fn toml_val_str(v: &Option<&Value>, err_msg: &'static str) -> anyhow::Result<String> {
     let v = v.ok_or_else(||anyhow::anyhow!(err_msg)) ?;
     if let Value::String(ref str_value) = v {
         Ok(str_value.to_owned())
     } else {
         anyhow::bail!(err_msg)
+    }
+}
+
+
+#[extension_trait::extension_trait]
+pub impl TomlValueExt for Option<&Value> {
+    fn string_value(&self, err_msg: &'static str) -> anyhow::Result<String> {
+        toml_val_str(self, err_msg)
     }
 }

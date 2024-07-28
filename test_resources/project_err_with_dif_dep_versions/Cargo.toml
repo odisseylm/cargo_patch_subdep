@@ -43,20 +43,7 @@ path = "./../thirdparty/progenitor/progenitor-client"
 #]
 
 
-#[workspace.dependencies.mvv_cargo_override_subdep]
-#path = "/home/volodymyr/projects/rust/mvv_cargo_override_subdep"
-#version = "0.1.0"
-#config = [
-#    "bla-bla","bla-bla",
-#]
-
-#[workspace.package.metadata.patch.serde]
-#version = "1.0"
-#patches = [
-#    "test.patch2"
-#]
-
-[workspace.package.metadata.patch-override-sub-dependencies.progenitor-client]
-override = [
+[workspace.package.metadata.patch-replace-sub-dependencies.progenitor-client]
+replace = [
     "reqwest", "0.11.27", "0.12.5",
 ]

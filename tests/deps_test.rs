@@ -1,6 +1,6 @@
 use std::path::Path;
 use mvv_cargo_patch_subdep::{
-    conf::{ OverrideSubDepConfig, str_override_entry },
+    conf::{ ReplaceSubDepVersConfig, str_override_entry },
     deps::gather_patching_deps_from_dir,
     util::string_hash_map_1,
 };
@@ -8,8 +8,8 @@ use mvv_cargo_patch_subdep::{
 
 
 
-fn test_override_config() -> OverrideSubDepConfig {
-    OverrideSubDepConfig::new([
+fn test_override_config() -> ReplaceSubDepVersConfig {
+    ReplaceSubDepVersConfig::new([
         str_override_entry("progenitor-client", "reqwest", "0.11.27", "0.12.5"),
         str_override_entry("progenitor-client", "reqwest", "0.11", "0.12"),
     ])

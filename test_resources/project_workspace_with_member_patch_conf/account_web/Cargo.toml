@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 unknown_dep = "678"
 
-[package.metadata.patch-override-sub-dependencies.progenitor-client]
-override = [
-    "reqwest", "0.11.27", "0.12.5",
+[package.metadata.patch-replace-sub-dependencies.progenitor-client]
+replace = [
+    { sub_dep = "reqwest", from_ver = "0.11.27", to_ver = "0.12.5" },
 ]

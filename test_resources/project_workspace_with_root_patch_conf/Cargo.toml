@@ -7,14 +7,14 @@ members = [
 resolver = "2"
 
 
-[workspace.metadata.patch-override-sub-dependencies.progenitor-client]
-override = [
-    "reqwest", "0.11.27", "0.12.5",
-    "url", "2.5.0", "2.5.1",
+[workspace.metadata.patch-replace-sub-dependencies.progenitor-client]
+replace = [
+    { sub_dep = "reqwest", from_ver = "0.11.27", to_ver = "0.12.5" },
+    { sub_dep = "url", from_ver = "2.5.0", to_ver = "2.5.1" },
 ]
-[workspace.metadata.patch-override-sub-dependencies.progenitor-client-macro]
-override = [
-    "http", "0.2.6", "0.2.9",
-    "reqwest", "0.11.27", "0.12.5",
+[workspace.metadata.patch-replace-sub-dependencies.progenitor-client-macro]
+replace = [
+    { sub_dep = "http", from_ver = "0.2.6", to_ver = "0.2.9" },
+    { sub_dep = "reqwest", from_ver = "0.11.27", to_ver = "0.12.5" },
 ]
 
