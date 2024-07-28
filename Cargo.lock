@@ -2020,7 +2020,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "mvv_cargo_patch_subdep"
+name = "mvv_cargo_patch_subdep_ver"
 version = "0.1.0"
 dependencies = [
  "anyhow",

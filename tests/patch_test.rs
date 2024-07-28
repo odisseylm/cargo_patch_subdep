@@ -1,6 +1,6 @@
 use std::fs;
 use std::path::Path;
-use mvv_cargo_patch_subdep::{
+use mvv_cargo_patch_subdep_ver::{
     cargo_core::{ fetch_cargo_core_workspace, setup_cargo_core_config, acquire_cargo_core_package_cache_lock },
     deps::gather_all_dep_ver_from_dir,
     patch::do_patch_project,

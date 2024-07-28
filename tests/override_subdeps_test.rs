@@ -1,6 +1,6 @@
 use std::fs;
 use std::path::Path;
-use mvv_cargo_patch_subdep::{
+use mvv_cargo_patch_subdep_ver::{
     conf::{ ReplaceSubDepVersConfig, str_override_entry },
     deps::gather_all_dep_ver_from_dir,
     patch::replace_deps_version_in_file_tree,

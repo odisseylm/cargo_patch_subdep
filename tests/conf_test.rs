@@ -1,5 +1,5 @@
 use std::path::Path;
-use mvv_cargo_patch_subdep::conf::{
+use mvv_cargo_patch_subdep_ver::conf::{
     gather_override_patch_conf_from_dir, ReplaceSubDepVersConfig, str_override_entry,
 };
 //--------------------------------------------------------------------------------------------------
