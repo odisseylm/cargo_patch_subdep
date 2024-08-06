@@ -13,10 +13,13 @@ path to downloaded dependency sources.
 Simply run:
 
 ```sh
-cargo install cargo-patch-subdep
+cargo install mvv_cargo_patch_subdep_ver
 ```
 ```sh
-cargo install cargo-patch-subdep --path /home/...bla-bala.../cargo_patch_subdep
+cargo install mvv_cargo_patch_subdep_ver --path /home/...bla-bala.../cargo_patch_subdep
+```
+```sh
+cargo install mvv_cargo_patch_subdep_ver --path .
 ```
 ```sh
 cargo install --git https://github.com/odisseylm/cargo_patch_subdep
@@ -47,7 +50,7 @@ It specifies which dependency to patch (in this case 'progenitor-xxx').
 Running:
 
 ```sh
-cargo patch-subdep
+cargo patch-subdep-ver
 ```
 
 will download the packages specified in the dependency section to the

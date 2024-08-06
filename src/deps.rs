@@ -60,6 +60,11 @@ fn gather_patching_deps_from_manifest<'a>(
     let deps = gather_patching_deps_from_deps(&m.dev_dependencies, config) ?;
     merge_deps(dependencies_to_fix, &deps) ?;
 
+    if let Some(workspace) = m.workspace {
+        let deps = gather_patching_deps_from_deps(&workspace.dependencies, config) ?;
+        merge_deps(dependencies_to_fix, &deps) ?;
+    }
+
     Ok(())
 }
 
