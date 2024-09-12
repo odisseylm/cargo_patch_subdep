@@ -7,6 +7,7 @@ use mvv_cargo_patch_subdep_ver::{
     io::{ clear_dir, copy_dir },
     util::string_hash_set,
 };
+use mvv_cargo_patch_subdep_ver::cargo_core::cargo_core_resolve_ws;
 //--------------------------------------------------------------------------------------------------
 
 
@@ -112,6 +113,6 @@ fn open_workspace(project_dir: &Path) -> anyhow::Result<()> {
     let config = setup_cargo_core_config() ?;
     let _lock = acquire_cargo_core_package_cache_lock(&config) ?;
     let workspace = fetch_cargo_core_workspace(&config, &manifest_path) ?;
-    let (_pkg_set, _resolve) = cargo::ops::resolve_ws(&workspace) ?;
+    let _pkg_set = cargo_core_resolve_ws(&workspace) ?;
     Ok(())
 }

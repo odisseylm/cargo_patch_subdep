@@ -11,11 +11,15 @@ categories = ["command-line-utilities"]
 repository = "https://github.com/odisseylm/cargo_patch_subdep"
 
 
+[workspace]
+# To avoid problem with putting it in subdir (like 'thirdparty', 'temp') of other project
+
+
 [lints.rust]
 # Features are not used there because in general 'features' are considered ass additive
 # and some build tools enables all features at the same time, what is not acceptable for this case.
 unexpected_cfgs = { level = "warn", check-cfg = [
-    'cfg(cargo_core_ver_prefix, values("05x", "06x", "07x", "075x", "076x", "079x", "08x", "09x", "010x", "011x", "012x", "013x", "014x", "015x", "1_0x", "1_1x", "1_2x", "1_3x", "1_4x", "1_5x"))'
+    'cfg(cargo_core_ver_prefix, values("05x", "06x", "07x", "075x", "076x", "079x", "08x", "082x", "09x", "010x", "011x", "012x", "013x", "014x", "015x", "1_0x", "1_1x", "1_2x", "1_3x", "1_4x", "1_5x"))'
 ] }
 
 
@@ -25,13 +29,27 @@ unexpected_cfgs = { level = "warn", check-cfg = [
 cargo_toml = "0.20.4" # "0.20.4"
 toml = "0.8.16" # "0.8.16"
 
+#version_check = "0.9.5"
+rustc_version = "0.4.1"
 
 [dependencies]
 # It was used as idea.
 #cargo-patch = "0.3.2"
 
-# Tested with 0.50.*, 0.59.0, 0.60.*, 0.69.1, 0.70.*, 0.75.1
-cargo = "0.81.0"  # "0.80.*"
+# TODO: Seems it is risky to use/depend on cargo crate directly
+#       since it will may not work in the future.
+#       Probably it would be better to call 'cargo' directly in some way. How?
+#       I've already tired to fix sources after 'cargo' crate changes :-(
+#       See https://docs.rs/cargo/latest/cargo/
+#       WARNING: Using Cargo as a library has drawbacks, particularly the API is unstable,
+#       and there is no clear path to stabilize it soon at the time of writing.
+#       See The Cargo Book: External tools for more on this topic.
+#
+# Tested with 0.50.*, 0.59.0, 0.60.*, 0.69.1, 0.70.*, 0.75.1, 0.80.0, 0.81.0, 0.82.0
+cargo = "0.79.0"  # "0.80.*"
+
+# Default/latest 0.17.7 is not compatible with rustc 1.79
+orion = "=0.17.6"
 
 # !!! 0.71.*, 0.72.*, 0.73.*, 0.74.*, 0.77.*, 0.78.* - broken => gix-xxx compile error !!!
 # 0.76 0.79 => 07next

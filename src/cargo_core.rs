@@ -19,6 +19,7 @@ type CargoCoreConfig = cargo::util::config::Config;
 #[cfg(any(
     cargo_core_ver_prefix = "079x",
     cargo_core_ver_prefix = "08x",
+    cargo_core_ver_prefix = "082x",
     cargo_core_ver_prefix = "09x",
     cargo_core_ver_prefix = "010x",
     cargo_core_ver_prefix = "011x",
@@ -41,6 +42,7 @@ type CargoCoreConfig = cargo::util::context::GlobalContext;
     cargo_core_ver_prefix = "076x",
     cargo_core_ver_prefix = "079x",
     cargo_core_ver_prefix = "08x",
+    cargo_core_ver_prefix = "082x",
     cargo_core_ver_prefix = "09x",
     cargo_core_ver_prefix = "010x",
     cargo_core_ver_prefix = "011x",
@@ -84,6 +86,45 @@ pub fn setup_cargo_core_config() -> Result<CargoCoreConfig, anyhow::Error> {
 pub fn fetch_cargo_core_workspace<'a>(config: &'a CargoCoreConfig, path: &Path)
                                       -> Result<cargo::core::Workspace<'a>, anyhow::Error> {
     cargo::core::Workspace::new(path, config)
+}
+
+
+#[cfg(any(
+    cargo_core_ver_prefix = "05x",
+    cargo_core_ver_prefix = "06x",
+    cargo_core_ver_prefix = "07x",
+    cargo_core_ver_prefix = "075x",
+    cargo_core_ver_prefix = "076x",
+    cargo_core_ver_prefix = "079x",
+    cargo_core_ver_prefix = "08x",
+))]
+pub fn cargo_core_resolve_ws<'a>(workspace: &'a cargo::core::Workspace)
+                                      -> Result<cargo::core::PackageSet<'a>, anyhow::Error> {
+    let (pkg_set, _resolve) = cargo::ops::resolve_ws(&workspace) ?;
+    Ok(pkg_set)
+}
+
+
+#[cfg(any(
+    cargo_core_ver_prefix = "082x",
+    cargo_core_ver_prefix = "09x",
+    cargo_core_ver_prefix = "010x",
+    cargo_core_ver_prefix = "011x",
+    cargo_core_ver_prefix = "012x",
+    cargo_core_ver_prefix = "013x",
+    cargo_core_ver_prefix = "014x",
+    cargo_core_ver_prefix = "015x",
+    cargo_core_ver_prefix = "1_0x",
+    cargo_core_ver_prefix = "1_1x",
+    cargo_core_ver_prefix = "1_2x",
+    cargo_core_ver_prefix = "1_3x",
+    cargo_core_ver_prefix = "1_4x",
+    cargo_core_ver_prefix = "1_5x",
+))]
+pub fn cargo_core_resolve_ws<'a>(workspace: &'a cargo::core::Workspace)
+                                      -> Result<cargo::core::PackageSet<'a>, anyhow::Error> {
+    let (pkg_set, _resolve) = cargo::ops::resolve_ws(&workspace, true) ?;
+    Ok(pkg_set)
 }
 
 

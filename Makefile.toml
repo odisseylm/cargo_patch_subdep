@@ -24,3 +24,59 @@ args = ["test"]
 
 [tasks.build-flow]
 dependencies = [ "clean", "build", "test" ]
+
+
+[tasks.build-for-all-toolchains]
+dependencies = [
+    "install-all-toolchains",
+    "build-1-79-0",
+    "build-1-80-0",
+    "build-1-80-1",
+    "build-1-81-0",
+    "build-stable",
+    "build-nightly",
+]
+
+
+[tasks.install-all-toolchains]
+script = '''
+    rustup install 1.79.0 && \
+    rustup install 1.80.0 && \
+    rustup install 1.80.1 && \
+    rustup install 1.81.0 && \
+    rustup install stable && \
+    rustup install nightly && \
+    echo "All supported toolchains are installed"
+'''
+
+# Example of usage command, in this case we need to disable install_crate and install_script.
+#[tasks.build-1-80-0]
+#command = "cargo"
+#args = [ "+1.80.0", "test", "--all-features" ]
+#install_crate = false
+#install_script = ""
+#dependencies = [ "clean-1-80-0", ]
+#
+#[tasks.clean-1-80-0]
+#command = "cargo"
+#args = [ "clean" ]
+
+
+# Simpler version, if we use script there is no need to disable install_crate and install_script
+[tasks.build-1-79-0]
+script = "cargo clean && cargo +1.79.0 test --all-features"
+
+[tasks.build-1-80-0]
+script = "cargo clean && cargo +1.80.0 test --all-features"
+
+[tasks.build-1-80-1]
+script = "cargo clean && cargo +1.80.1 test --all-features"
+
+[tasks.build-1-81-0]
+script = "cargo clean && cargo +1.81.0 test --all-features"
+
+[tasks.build-stable]
+script = "cargo clean && cargo +stable test --all-features"
+
+[tasks.build-nightly]
+script = "cargo clean && cargo +nightly test --all-features"

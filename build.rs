@@ -1,8 +1,15 @@
+use std::path::Path;
 
 fn main() {
+
+    let rustc_ver = rustc_version::version().expect("rustc version is not picked up");
+    println!("### rustc_ver: {rustc_ver}");
+    std::fs::write(Path::new("target").join("rustc_ver"), rustc_ver.to_string()).unwrap();
+
     let cargo_core_ver = get_cargo_crate_version();
     if let Some(ref cargo_core_ver) = cargo_core_ver {
         let cargo_core_ver_id = get_cargo_core_ver_id(cargo_core_ver);
+        std::fs::write(Path::new("target").join("cargo_core_ver_id"), cargo_core_ver_id.to_string()).unwrap();
         if !cargo_core_ver_id.is_empty() {
             println!(r#"cargo::rustc-cfg=cargo_core_ver_prefix="{cargo_core_ver_id}""#);
         }
@@ -72,8 +79,10 @@ fn get_cargo_core_ver_id(cargo_core_ver: &str) -> &'static str {
     // 0.77 - 0.78 are not compiled successfully
     } else if cargo_core_ver.starts_with_one_of(["0.79"]) {
         "079x"
-    } else if cargo_core_ver.starts_with("0.8") {
+    } else if cargo_core_ver.starts_with_one_of(["0.80", "0.81"]) {
         "08x"
+    } else if cargo_core_ver.starts_with_one_of(["0.82", "0.83", "0.84", "0.85", "0.86", "0.87", "0.88", "0.89"]) {
+        "082x"
     } else if cargo_core_ver.starts_with("0.9") {
         "09x"
     } else if cargo_core_ver.starts_with("0.10") {

@@ -5,7 +5,10 @@ use anyhow::anyhow;
 use fs_extra::dir::{ copy, CopyOptions };
 use crate::{
     io::{ save_manifest, clear_dir },
-    cargo_core::{ fetch_cargo_core_workspace, setup_cargo_core_config, acquire_cargo_core_package_cache_lock },
+    cargo_core::{
+        fetch_cargo_core_workspace, setup_cargo_core_config, acquire_cargo_core_package_cache_lock,
+        cargo_core_resolve_ws,
+    },
 };
 //--------------------------------------------------------------------------------------------------
 
@@ -83,7 +86,7 @@ pub fn load_dep_sources(project_dir: &Path, deps: &HashMap<String, String>)
     let config = setup_cargo_core_config() ?;
     let _lock = acquire_cargo_core_package_cache_lock(&config) ?;
     let workspace = fetch_cargo_core_workspace(&config, &temp_manifest_path) ?;
-    let (pkg_set, _resolve) = cargo::ops::resolve_ws(&workspace) ?;
+    let pkg_set = cargo_core_resolve_ws(&workspace) ?;
 
     /*
     let workspace_state = resolve_cargo_core_sub_packages(&temp_manifest_path) ?;
