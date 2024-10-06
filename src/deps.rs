@@ -48,6 +48,9 @@ fn gather_patching_deps_from_manifest<'a>(
         Ok(deps_with_ver)
     }
 
+    if to_ignore_manifest(manifest_path, &config.ignore_cargos) {
+        return Ok(());
+    }
 
     let m = load_cargo_manifest(&manifest_path) ?;
 
@@ -68,6 +71,18 @@ fn gather_patching_deps_from_manifest<'a>(
     Ok(())
 }
 
+
+pub fn to_ignore_manifest(manifest_path: &Path, to_ignore_cargos: &Vec<String>) -> bool {
+    let manifest_path_str = manifest_path.to_string_lossy();
+    let manifest_path_str = manifest_path_str.as_ref();
+
+    for ignore_cargo in to_ignore_cargos.iter() {
+        if manifest_path_str.contains(ignore_cargo) {
+            return true;
+        }
+    }
+    false
+}
 
 fn merge_deps(summary: &mut HashMap<String, String>, merge_with: &HashMap<&String, &cargo_toml::Dependency>)
               -> Result<(), anyhow::Error> {

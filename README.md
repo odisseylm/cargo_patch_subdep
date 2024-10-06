@@ -40,10 +40,13 @@ To patch a dependency one has to add the following to `Cargo.toml`:
 ```toml
 [workspace.metadata.patch-replace-sub-dependencies.progenitor]
 replace = [ { sub_dep = "reqwest", from_ver = "0.11.27", to_ver = "0.12.5" }, ]
+ignore_cargos = [ "third-party/some-crate-to-skip/" ] # With current simple impl this 'skip' will be applied to ALL entries.
 [workspace.metadata.patch-replace-sub-dependencies.progenitor-impl]
 replace = [ { sub_dep = "reqwest", from_ver = "0.11.27", to_ver = "0.12.5" }, ]
+ignore_cargos = [ "third-party/some-crate-to-skip/" ]
 [workspace.metadata.patch-replace-sub-dependencies.progenitor-client]
 replace = [ { sub_dep = "reqwest", from_ver = "0.11.27", to_ver = "0.12.5" }, ]
+ignore_cargos = [ "third-party/some-crate-to-skip/" ]
 ```
 
 It specifies which dependency to patch (in this case 'progenitor-xxx').

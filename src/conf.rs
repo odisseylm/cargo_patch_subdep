@@ -1,6 +1,7 @@
 use std::path::Path;
 use if_chain::if_chain;
 use toml::Value;
+use crate::deps::to_ignore_manifest;
 use crate::manifest::gather_manifest_files;
 use crate::io::load_cargo_manifest;
 //--------------------------------------------------------------------------------------------------
@@ -11,11 +12,18 @@ use crate::io::load_cargo_manifest;
 pub struct ReplaceSubDepVersConfig {
     // Since there should not be a lot of entries, we can use list instead of map (with complex key)
     pub entries: Vec<ReplaceSubDepVerEntry>,
+    pub ignore_cargos: Vec<String>,
 }
 
 impl ReplaceSubDepVersConfig {
-    pub fn new<const N: usize>(entries: [ReplaceSubDepVerEntry; N]) -> Self {
-        ReplaceSubDepVersConfig { entries: entries.into_iter().collect::<Vec<_>>() }
+    pub fn new<const N: usize, const M: usize>(
+        entries: [ReplaceSubDepVerEntry; N],
+        ignore_cargos: [&str; M],
+    ) -> Self {
+        ReplaceSubDepVersConfig {
+            entries: entries.into_iter().collect::<Vec<_>>(),
+            ignore_cargos: ignore_cargos.into_iter().map(|s|s.to_owned()).collect::<Vec<_>>(),
+        }
     }
 }
 
@@ -51,12 +59,21 @@ impl ReplaceSubDepVersConfig {
 }
 
 
-pub fn gather_override_patch_conf_from_dir(project_dir: &Path) -> Result<ReplaceSubDepVersConfig, anyhow::Error>{
+pub fn gather_override_patch_conf_from_dir(project_dir: &Path)
+    -> Result<ReplaceSubDepVersConfig, anyhow::Error>{
 
     let manifests = gather_manifest_files(project_dir) ?;
     let mut all_conf_entries = Vec::<ReplaceSubDepVerEntry>::new();
+    // TODO: We should not collect/aggregate them without relation to dependency,
+    //       but let's live now with this simple solution/impl.
+    let mut ignore_cargos = Vec::<String>::new();
 
     for m_path in manifests {
+
+        if to_ignore_manifest(&m_path, &ignore_cargos) {
+            continue;
+        }
+
         let m = load_cargo_manifest(&m_path) ?;
 
         let workspace_metadata = m.workspace
@@ -64,22 +81,28 @@ pub fn gather_override_patch_conf_from_dir(project_dir: &Path) -> Result<Replace
 
         let w_conf = parse_conf_metadata(workspace_metadata)?;
         all_conf_entries.extend(w_conf.entries);
+        ignore_cargos.extend(w_conf.ignore_cargos);
 
         let package_metadata = m.package
             .and_then(|w| w.metadata);
         let p_conf = parse_conf_metadata(package_metadata)?;
         all_conf_entries.extend(p_conf.entries);
+        ignore_cargos.extend(p_conf.ignore_cargos);
     }
 
     all_conf_entries.sort_unstable();
     all_conf_entries.dedup();
 
-    Ok(ReplaceSubDepVersConfig { entries: all_conf_entries })
+    ignore_cargos.sort_unstable();
+    ignore_cargos.dedup();
+
+    Ok(ReplaceSubDepVersConfig { entries: all_conf_entries, ignore_cargos })
 }
 
 
 pub fn parse_conf_metadata(metadata: Option<Value>) -> Result<ReplaceSubDepVersConfig, anyhow::Error>{
     let mut conf_entries = Vec::<ReplaceSubDepVerEntry>::new();
+    let mut ignore_cargos = Vec::<String>::new();
 
     if_chain! {
         if let Some(Value::Table(ref table)) = metadata;
@@ -88,17 +111,24 @@ pub fn parse_conf_metadata(metadata: Option<Value>) -> Result<ReplaceSubDepVersC
 
         then {
             for dep_name in patch_override_sub_dependencies {
-                let override_opt = dep_name.1.get("replace");
+                let override_opt = &dep_name.1.get("replace");
+                let ignore_opt = &dep_name.1.get("ignore_cargos");
+
                 let dep_name = dep_name.0.as_str();
                 if let Some(Value::Array(ref array)) = override_opt {
                     let replace_attrs = parse_override_params(dep_name, array) ?;
                     conf_entries.extend(replace_attrs);
                 }
+
+                if let Some(Value::Array(ref array)) = ignore_opt {
+                    let ignore_attrs = parse_ignore_cargos(array) ?;
+                    ignore_cargos.extend(ignore_attrs);
+                }
             }
         }
     }
 
-    Ok(ReplaceSubDepVersConfig { entries: conf_entries })
+    Ok(ReplaceSubDepVersConfig { entries: conf_entries, ignore_cargos })
 }
 
 
@@ -122,6 +152,22 @@ fn parse_override_params(dep_name: &str, array: &toml::value::Array) -> anyhow::
     }
 
     Ok(conf_entries)
+}
+
+
+fn parse_ignore_cargos(array: &toml::value::Array) -> anyhow::Result<Vec<String>> {
+    const ERR_MSG: &str = r#"Expected format like: [ "thirdparty/some-crate-to-ignore/Cargo.toml", ]"#;
+    let mut ignore_entries = Vec::<String>::new();
+
+    for array_item in array.iter() {
+        if let Value::String(ref to_ignore_path_part) = array_item {
+            ignore_entries.push(to_ignore_path_part.to_string());
+        } else {
+            anyhow::bail!(ERR_MSG);
+        }
+    }
+
+    Ok(ignore_entries)
 }
 
 

@@ -12,9 +12,15 @@ replace = [
     { sub_dep = "reqwest", from_ver = "0.11.27", to_ver = "0.12.5" },
     { sub_dep = "url", from_ver = "2.5.0", to_ver = "2.5.1" },
 ]
+ignore_cargos = [
+    "external_thirdparty/my_crate/Cargo.toml",
+]
 [workspace.metadata.patch-replace-sub-dependencies.progenitor-client-macro]
 replace = [
     { sub_dep = "http", from_ver = "0.2.6", to_ver = "0.2.9" },
     { sub_dep = "reqwest", from_ver = "0.11.27", to_ver = "0.12.5" },
+]
+ignore_cargos = [
+    "external_thirdparty/my_crate/Cargo.toml",
 ]
 

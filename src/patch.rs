@@ -116,7 +116,17 @@ pub fn do_patch_project(project_dir: &Path) -> Result<(), anyhow::Error> {
             .filter(|e| e.dependency == dep_name)
             .map(|e| e.clone())
             .collect::<Vec<_>>();
-        let this_dep_conf = ReplaceSubDepVersConfig { entries: this_dep_patch_rules };
+
+        let ignore_cargos = conf.ignore_cargos
+            .iter()
+            .filter(|s| !s.is_empty())
+            .map(|e| e.clone())
+            .collect::<Vec<_>>();
+
+        let this_dep_conf = ReplaceSubDepVersConfig {
+            entries: this_dep_patch_rules,
+            ignore_cargos,
+        };
 
         replace_deps_version_in_file_tree(&downloaded_dep_src_to_patch, &this_dep_conf) ?;
     }

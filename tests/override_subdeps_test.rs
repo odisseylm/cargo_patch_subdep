@@ -22,6 +22,7 @@ fn replace_deps_version_in_file_tree_real_test() -> Result<(), anyhow::Error> {
             "*", // not used on phase of overriding
             "reqwest", "0.11", "0.12",
         ),
+    ], [
     ]);
 
     let test_temp_dir = "target/tmp_test_resources/replace_deps_version_in_file_tree_real_test";
@@ -75,6 +76,7 @@ fn replace_deps_version_in_file_tree_synthetic_test() -> Result<(), anyhow::Erro
         str_override_entry(
             "*", // not used on phase of overriding
             "reqwest", "0.12.5", "0.1012.5"),
+    ], [
     ]);
 
     let test_temp_dir = "target/tmp_test_resources/replace_deps_version_in_file_tree_synthetic_test";

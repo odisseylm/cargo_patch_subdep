@@ -12,6 +12,7 @@ fn test_override_config() -> ReplaceSubDepVersConfig {
     ReplaceSubDepVersConfig::new([
         str_override_entry("progenitor-client", "reqwest", "0.11.27", "0.12.5"),
         str_override_entry("progenitor-client", "reqwest", "0.11", "0.12"),
+    ], [
     ])
 }
 

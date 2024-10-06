@@ -9,6 +9,7 @@ use crate::io::IOResultErrExt;
 pub fn gather_manifest_files(dir: &Path) -> Result<Vec<PathBuf>, anyhow::Error> {
     let mut manifests = Vec::<PathBuf>::with_capacity(10);
     gather_manifest_files_impl(dir, &mut manifests) ?;
+    manifests.sort_unstable();
     Ok(manifests)
 }
 
